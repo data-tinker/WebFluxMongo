@@ -6,6 +6,7 @@ import com.ttymonkey.reactivemongo.models.Employee
 import com.ttymonkey.reactivemongo.repositories.EmployeeRepository
 import kotlinx.coroutines.flow.Flow
 import org.bson.types.ObjectId
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
@@ -13,6 +14,9 @@ class EmployeeService(
     private val companyService: CompanyService,
     private val employeeRepository: EmployeeRepository,
 ) {
+    companion object {
+        private val log = LoggerFactory.getLogger(EmployeeService::class.java)
+    }
 
     suspend fun createEmployee(request: EmployeeRequest): Employee {
         val companyId = request.companyId
@@ -52,7 +56,10 @@ class EmployeeService(
 
     suspend fun findById(id: ObjectId): Employee =
         employeeRepository.findById(id)
-            ?: throw NotFoundException("Employee with id $id not found.")
+            ?: run {
+                log.error("Employee with id $id not found.")
+                throw NotFoundException("Employee with id $id not found.")
+            }
 
     suspend fun updateEmployee(id: ObjectId, request: EmployeeRequest): Employee {
         val companyId = request.companyId

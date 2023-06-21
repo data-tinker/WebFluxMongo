@@ -8,6 +8,7 @@ import com.ttymonkey.reactivemongo.repositories.EmployeeRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
@@ -15,6 +16,9 @@ class CompanyService(
     private val companyRepository: CompanyRepository,
     private val employeeRepository: EmployeeRepository,
 ) {
+    companion object {
+        private val log = LoggerFactory.getLogger(CompanyService::class.java)
+    }
 
     suspend fun createCompany(request: CompanyRequest): Company =
         companyRepository.save(
@@ -29,12 +33,16 @@ class CompanyService(
 
     suspend fun findById(id: String): Company =
         companyRepository.findById(id)
-            ?: throw NotFoundException("Company with id $id not found.")
+            ?: run {
+                log.error("Company with id $id not found.")
+                throw NotFoundException("Company with id $id not found.")
+            }
 
     suspend fun updateCompany(id: String, request: CompanyRequest): Company {
         val foundCompany = companyRepository.findById(id)
 
         return if (foundCompany == null) {
+            log.error("Company with id $id not found.")
             throw throw NotFoundException("Company with id $id not found.")
         } else {
             val updatedCompany = companyRepository.save(

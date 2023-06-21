@@ -1,0 +1,11 @@
+server:
+    error:
+        include-message: always
+spring:
+    data:
+        mongodb:
+            host: ${DB_HOST:localhost}
+            port: 27017
+            database: ${DB_DATABASE:test}
+            username: ${DB_USERNAME:mongo}
+            password: ${DB_PASSWORD:password}

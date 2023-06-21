@@ -3,10 +3,10 @@ package com.ttymonkey.reactivemongo.services
 import com.ttymonkey.reactivemongo.dto.CompanyRequest
 import com.ttymonkey.reactivemongo.errors.NotFoundException
 import com.ttymonkey.reactivemongo.models.Company
-import com.ttymonkey.reactivemongo.models.Employee
 import com.ttymonkey.reactivemongo.repositories.CompanyRepository
 import com.ttymonkey.reactivemongo.repositories.EmployeeRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import org.springframework.stereotype.Service
 
@@ -45,7 +45,7 @@ class CompanyService(
                 ),
             )
 
-            updateCompanyEmployees(updatedCompany)
+            updateCompanyEmployees(updatedCompany).collect()
 
             updatedCompany
         }
@@ -54,7 +54,7 @@ class CompanyService(
     suspend fun deleteById(id: String) =
         companyRepository.deleteById(id)
 
-    private fun updateCompanyEmployees(updatedCompany: Company): Flow<Employee> =
+    private fun updateCompanyEmployees(updatedCompany: Company) =
         employeeRepository.saveAll(
             employeeRepository.findByCompanyId(updatedCompany.id!!)
                 .map { it.apply { company = updatedCompany } },
